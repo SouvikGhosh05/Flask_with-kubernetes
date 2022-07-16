@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: flask-test-kubernetes-deployment
+  labels:
+    app: flask-test-kubernetes
+
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: flask-test-kubernetes
+      
+  template:
+    metadata:
+      labels:
+        app: flask-test-kubernetes
+    spec:
+      containers:
+      - name: flask-test-container
+        image: souvikdocks250/flask-python:latest
+        ports:
+        - containerPort: 5000
+        envFrom:
+          - secretRef: 
+              name: api-secret
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-test-kubernetes-service
+  labels:
+    app: flask-test-kubernetes
+spec:
+  type: LoadBalancer
+  selector:
+    app: flask-test-kubernetes
+  ports:
+    - port: 5000
