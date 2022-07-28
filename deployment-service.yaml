@@ -2,41 +2,58 @@ apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: flask-test-kubernetes-deployment
+  name: flask-test-nginx-kubernetes
   labels:
     app: flask-test-kubernetes
+    server: nginx
 
 spec:
   replicas: 5
   selector:
     matchLabels:
       app: flask-test-kubernetes
+      server: nginx
       
   template:
     metadata:
       labels:
         app: flask-test-kubernetes
+        server: nginx
+
     spec:
       containers:
       - name: flask-test-container
         image: souvikdocks250/flask-python:latest
         ports:
-        - containerPort: 5000
+          - containerPort: 5000
         envFrom:
           - secretRef: 
               name: api-secret
+
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+          - containerPort: 80
 
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: flask-test-kubernetes-service
+  name: flask-test-nginxkubernetes-service
   labels:
     app: flask-test-kubernetes
+    server: nginx
 spec:
   type: LoadBalancer
   selector:
     app: flask-test-kubernetes
+    server: nginx
   ports:
-    - port: 5000
+    - name: flask-port
+      port: 900
+      targetPort: 5000
+    - name: nginx-port
+      port: 8080
+      targetPort: 80
+
